@@ -52,6 +52,7 @@ type Command struct {
 	options          OptionMapType
 	configOptions    OptionMapType
 	inputKeySecret   string
+	querys           map[string]string
 }
 
 // Commander is the interface of all commands
@@ -89,6 +90,12 @@ func (cmd *Command) Init(args []string, options OptionMapType, cmder interface{}
 		return err
 	}
 
+	query,_ := GetString(OptionQuery, cmd.options)
+	querys,err := ParseQuery(query)
+	if err != nil {
+		return err
+	}
+	cmd.querys = querys
 	cmd.assembleOptions(cmder)
 	return nil
 }

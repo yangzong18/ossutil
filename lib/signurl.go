@@ -128,6 +128,7 @@ var signURLCommand = SignurlCommand{
 			OptionTrafficLimit,
 			OptionDisableEncodeSlash,
 			OptionRequestPayer,
+			OptionQuery,
 		},
 	},
 }
@@ -165,7 +166,6 @@ func (sc *SignurlCommand) RunCommand() error {
 	if payer != "" && payer != strings.ToLower(string(oss.Requester)) {
 		return fmt.Errorf("invalid request payer: %s, please check", payer)
 	}
-
 	bucket, err := sc.command.ossBucket(cloudURL.bucket)
 	if err != nil {
 		return err
@@ -182,6 +182,12 @@ func (sc *SignurlCommand) RunCommand() error {
 
 	if payer != "" {
 		options = append(options, oss.RequestPayerParam(oss.PayerType(payer)))
+	}
+
+	xOssProcess,ok := sc.command.querys["x-oss-process"]
+
+	if ok {
+		options = append(options, oss.Process(xOssProcess))
 	}
 
 	str, err := sc.ossSign(bucket, cloudURL.object, timeout, options...)

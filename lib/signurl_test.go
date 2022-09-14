@@ -464,3 +464,47 @@ func (s *OssutilCommandSuite) TestSignUrlWithRequestPayer(c *C) {
 	os.Remove(uploadFileName)
 	os.Remove(downFileName)
 }
+
+
+func (s *OssutilCommandSuite) TestSignUrlWithQueryProcess(c *C) {
+	bucketName := bucketNamePrefix+randLowStr(5)
+	s.putBucket(bucketName, c)
+
+	object := objectFileName + randStr(5)
+	s.putObject(bucketName, object, "/Users/apple/go/src/github.com/aliyun/ossutil/lib/demo.jpg", c)
+
+	//sign url with query --query=x-oss-process:image/resize,m_fixed,w_100,h_100/rotate,90
+
+	command := "sign"
+	str := ""
+	query := "x-oss-process:image/resize,m_fixed,w_100,h_100/rotate,90"
+	options := OptionMapType{
+		"endpoint":        &str,
+		"accessKeyID":     &str,
+		"accessKeySecret": &str,
+		"configFile":      &configFile,
+		"query":           &query,
+	}
+
+	srcUrl := CloudURLToString(bucketName, object)
+	args := []string{srcUrl}
+	_, err := cm.RunCommand(command, args, options)
+	c.Assert(err, IsNil)
+
+	signUrl,err := url.QueryUnescape(signURLCommand.signUrl)
+	c.Assert(err, IsNil)
+	c.Assert(strings.Contains(signUrl, "image/resize,m_fixed,w_100,h_100/rotate,90"), Equals, true)
+
+	bucket, err := signURLCommand.command.ossBucket(bucketName)
+	c.Assert(err, IsNil)
+
+	// get object with url
+	downFileName := "ossutil-test-file" + randStr(5)+".jpg"
+	err = bucket.GetObjectToFileWithURL(signURLCommand.signUrl, downFileName)
+	c.Assert(err, IsNil)
+	str = s.readFile(downFileName, c)
+	//c.Assert(str, Equals, data)
+
+	os.Remove(downFileName)
+	s.removeBucket(bucketName,true,c)
+}

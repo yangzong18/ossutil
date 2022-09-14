@@ -277,6 +277,9 @@ var OptionMap = map[string]Option{
 	OptionCloudBoxID: Option{"", "--cloudbox-id", "", OptionTypeString, "", "",
 		"云盒的id，缺省值为空，适用于云盒场景",
 		"The ID of the cloud box. The default value is empty. It is applicable to cloud box scenarios"},
+	OptionQuery: Option{"", "--query", "", OptionTypeString, "", "",
+		"查询参数",
+		"query options"},
 }
 
 func (T *Option) getHelp(language string) string {
@@ -445,4 +448,24 @@ func GetString(name string, options OptionMapType) (string, error) {
 		return "", fmt.Errorf("Error: Option value of %s is not string", name)
 	}
 	return "", fmt.Errorf("Error: There is no option for %s", name)
+}
+
+// ParseQuery parse query
+func ParseQuery(str string) (map[string]string, error) {
+	if str == "" {
+		return nil, nil
+	}
+
+	querys := map[string]string{}
+	sli := strings.Split(str, "#")
+	for _, s := range sli {
+		pair := strings.SplitN(s, ":", 2)
+		name := pair[0]
+		value := ""
+		if len(pair) > 1 {
+			value = pair[1]
+		}
+		querys[name] = value
+	}
+	return querys, nil
 }
