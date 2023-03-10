@@ -142,10 +142,14 @@ func readConfigFromFile(configFile string) (OptionMapType, error) {
 
 	//added
 	//configMap[CREDSection] = map[string]string{}
-
 	for name, option := range credOptions {
 		if opName, ok := getOptionNameByStr(strings.TrimSpace(name)); ok {
-			configMap[strings.TrimSpace(opName)] = strings.TrimSpace(option)
+			if StrInArray(opName, strArray) {
+				decryptStr, _ := DecryptSecret(strings.TrimSpace(option))
+				configMap[strings.TrimSpace(opName)] = decryptStr
+			} else {
+				configMap[strings.TrimSpace(opName)] = strings.TrimSpace(option)
+			}
 		} else {
 			configMap[strings.TrimSpace(name)] = strings.TrimSpace(option)
 		}

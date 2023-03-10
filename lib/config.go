@@ -327,6 +327,8 @@ var configCommand = ConfigCommand{
 	},
 }
 
+var strArray = []string{OptionAccessKeyID, OptionAccessKeySecret, OptionSTSToken}
+
 // function for RewriteLoadConfiger interface
 func (cc *ConfigCommand) rewriteLoadConfig(configFile string) error {
 	// read config file, if error exist, do not print error
@@ -483,9 +485,19 @@ func (cc *ConfigCommand) configInteractive(configFile, language string) error {
 		}
 
 		if len(val) > 0 {
-			section.Add(name, val)
+			if StrInArray(name, strArray) {
+				encryptStr, _ := EncryptSecret(val)
+				section.Add(name, encryptStr)
+			} else {
+				section.Add(name, val)
+			}
 		} else if OptionMap[name].def != "" {
-			section.Add(name, OptionMap[name].def)
+			if StrInArray(name, strArray) {
+				encryptStr, _ := EncryptSecret(OptionMap[name].def)
+				section.Add(name, encryptStr)
+			} else {
+				section.Add(name, OptionMap[name].def)
+			}
 		}
 	}
 
@@ -502,7 +514,12 @@ func (cc *ConfigCommand) runCommandNonInteractive(configFile, language string) e
 	section.Add(OptionLanguage, language)
 	for name := range CredOptionMap {
 		if val, _ := GetString(name, cc.command.options); val != "" {
-			section.Add(name, val)
+			if StrInArray(name, strArray) {
+				encryptStr, _ := EncryptSecret(strings.TrimSpace(val))
+				section.Add(name, encryptStr)
+			} else {
+				section.Add(name, val)
+			}
 		}
 	}
 	if err := configparser.Save(config, configFile); err != nil {

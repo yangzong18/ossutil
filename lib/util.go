@@ -11,6 +11,7 @@ import (
 	"os/user"
 	"path/filepath"
 	"runtime"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -735,4 +736,14 @@ func AddStringsToOption(params []string, options []oss.Option) ([]oss.Option, er
 		options = append(options, oss.AddParam(key, value))
 	}
 	return options, nil
+}
+
+// StrInArray Check whether the string is in the array
+func StrInArray(target string, strArray []string) bool {
+	sort.Strings(strArray)
+	index := sort.SearchStrings(strArray, target)
+	if index < len(strArray) && strArray[index] == target {
+		return true
+	}
+	return false
 }
