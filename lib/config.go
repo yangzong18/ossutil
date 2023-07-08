@@ -323,6 +323,7 @@ var configCommand = ConfigCommand{
 			OptionSTSToken,
 			OptionOutputDir,
 			OptionLanguage,
+			OptionProfile,
 		},
 	},
 }
@@ -375,14 +376,17 @@ func (cc *ConfigCommand) RunCommand() error {
 	language, _ := GetString(OptionLanguage, cc.command.options)
 	delete(cc.command.options, OptionLanguage)
 
+	profile, _ := GetString(OptionProfile, cc.command.options)
+	delete(cc.command.options, OptionProfile)
+
 	// filter user input options
 	cc.filterNonInputOptions()
 
 	var err error
 	if len(cc.command.options) == 0 {
-		err = cc.runCommandInteractive(configFile, language)
+		err = cc.runCommandInteractive(configFile, language,profile)
 	} else {
-		err = cc.runCommandNonInteractive(configFile, language)
+		err = cc.runCommandNonInteractive(configFile, language,profile)
 	}
 	return err
 }
@@ -395,7 +399,7 @@ func (cc *ConfigCommand) filterNonInputOptions() {
 	}
 }
 
-func (cc *ConfigCommand) runCommandInteractive(configFile, language string) error {
+func (cc *ConfigCommand) runCommandInteractive(configFile, language,profile string) error {
 	llanguage := strings.ToLower(language)
 	if llanguage == LEnglishLanguage {
 		fmt.Println("The command creates a configuration file and stores credentials.")
@@ -426,16 +430,21 @@ func (cc *ConfigCommand) runCommandInteractive(configFile, language string) erro
 		fmt.Println("对于下述配置，回车将跳过相关配置项的设置，配置项的具体含义，请使用\"help config\"命令查看。")
 	}
 
-	if err := cc.configInteractive(configFile, language); err != nil {
+	if err := cc.configInteractive(configFile, language,profile); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (cc *ConfigCommand) configInteractive(configFile, language string) error {
+func (cc *ConfigCommand) configInteractive(configFile, language,profile string) error {
 	var val string
 	config := configparser.NewConfiguration()
-	section := config.NewSection(CREDSection)
+	var section *configparser.Section
+	if profile == "" {
+		section = config.NewSection(CREDSection)
+	}else{
+		section = config.NewSection(profile)
+	}
 
 	// if config file not exist, config Language
 	llanguage := strings.ToLower(language)
@@ -495,10 +504,15 @@ func (cc *ConfigCommand) configInteractive(configFile, language string) error {
 	return nil
 }
 
-func (cc *ConfigCommand) runCommandNonInteractive(configFile, language string) error {
+func (cc *ConfigCommand) runCommandNonInteractive(configFile, language,profile string) error {
 	configFile = DecideConfigFile(configFile)
 	config := configparser.NewConfiguration()
-	section := config.NewSection(CREDSection)
+	var section *configparser.Section
+	if profile == "" {
+		section = config.NewSection(CREDSection)
+	}else{
+		section = config.NewSection(profile)
+	}
 	section.Add(OptionLanguage, language)
 	for name := range CredOptionMap {
 		if val, _ := GetString(name, cc.command.options); val != "" {
