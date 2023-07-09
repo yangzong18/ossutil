@@ -62,7 +62,7 @@ type Commander interface {
 
 // RewriteLoadConfiger is the interface for those commands, which do not need to load config, or have other action
 type RewriteLoadConfiger interface {
-	rewriteLoadConfig(string) error
+	rewriteLoadConfig(string, string) error
 }
 
 // RewriteAssembleOptioner is the interface for those commands, which do not need to assemble options
@@ -116,11 +116,12 @@ func (cmd *Command) checkArgs() error {
 }
 
 func (cmd *Command) loadConfig(configFile string, cmder interface{}) error {
+	profile, _ := GetString(OptionProfile, cmd.options)
 	if cmdder, ok := cmder.(RewriteLoadConfiger); ok {
-		return cmdder.rewriteLoadConfig(configFile)
+		return cmdder.rewriteLoadConfig(configFile, profile)
 	}
 	var err error
-	if cmd.configOptions, err = LoadConfig(configFile); err != nil && cmd.needConfigFile() {
+	if cmd.configOptions, err = LoadConfig(configFile, profile); err != nil && cmd.needConfigFile() {
 		return err
 	}
 	return nil

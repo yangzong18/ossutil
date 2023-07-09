@@ -68,7 +68,7 @@ func (s *OssutilConfigSuite) TestConfigNonInteractive(c *C) {
 	c.Assert(err, IsNil)
 	c.Assert(f.Size() > 0, Equals, true)
 
-	opts, err := LoadConfig(configFile)
+	opts, err := LoadConfig(configFile, "")
 	c.Assert(err, IsNil)
 	c.Assert(len(opts), Equals, 5)
 	c.Assert(opts[OptionLanguage], Equals, DefaultLanguage)
@@ -100,7 +100,7 @@ func (s *OssutilConfigSuite) TestConfigNonInteractiveWithAgent(c *C) {
 	c.Assert(err, IsNil)
 	c.Assert(f.Size() > 0, Equals, true)
 
-	opts, err := LoadConfig(configFile)
+	opts, err := LoadConfig(configFile, "")
 	c.Assert(err, IsNil)
 	c.Assert(len(opts), Equals, 5)
 	c.Assert(opts[OptionLanguage], Equals, DefaultLanguage)
@@ -132,7 +132,7 @@ func (s *OssutilConfigSuite) TestConfigNonInteractiveLanguage(c *C) {
 		c.Assert(err, IsNil)
 		c.Assert(f.Size() > 0, Equals, true)
 
-		opts, err := LoadConfig(configFile)
+		opts, err := LoadConfig(configFile, "")
 		c.Assert(err, IsNil)
 		c.Assert(len(opts), Equals, 3)
 		c.Assert(opts[OptionEndpoint], Equals, endpoint)
@@ -157,7 +157,7 @@ func (s *OssutilConfigSuite) TestConfigInteractive(c *C) {
 	c.Assert(err, IsNil)
 	c.Assert(f.Size() > 0, Equals, true)
 
-	opts, err := LoadConfig(configFile)
+	opts, err := LoadConfig(configFile, "")
 	c.Assert(err, IsNil)
 	c.Assert(len(opts), Equals, 1)
 	c.Assert(opts[OptionLanguage], Equals, DefaultLanguage)
@@ -182,7 +182,7 @@ func (s *OssutilConfigSuite) TestConfigInteractiveLanguage(c *C) {
 	c.Assert(err, IsNil)
 	c.Assert(f.Size() > 0, Equals, true)
 
-	opts, err := LoadConfig(configFile)
+	opts, err := LoadConfig(configFile, "")
 	c.Assert(err, IsNil)
 	c.Assert(len(opts), Equals, 1)
 	os.Remove(configFile)
@@ -205,7 +205,7 @@ func (s *OssutilConfigSuite) TestConfigLanguageEN(c *C) {
 	c.Assert(err, IsNil)
 	c.Assert(f.Size() > 0, Equals, true)
 
-	opts, err := LoadConfig(configFile)
+	opts, err := LoadConfig(configFile, "")
 	c.Assert(err, IsNil)
 	c.Assert(len(opts), Equals, 1)
 	c.Assert(opts[OptionLanguage], Equals, language)
@@ -229,7 +229,7 @@ func (s *OssutilConfigSuite) TestConfigLanguageCH(c *C) {
 	c.Assert(err, IsNil)
 	c.Assert(f.Size() > 0, Equals, true)
 
-	opts, err := LoadConfig(configFile)
+	opts, err := LoadConfig(configFile, "")
 	c.Assert(err, IsNil)
 	c.Assert(len(opts), Equals, 1)
 	c.Assert(opts[OptionLanguage], Equals, language)
@@ -260,7 +260,7 @@ func (s *OssutilConfigSuite) TestConfigOptionEmptyValue(c *C) {
 	c.Assert(err, IsNil)
 	c.Assert(f.Size() > 0, Equals, true)
 
-	opts, err := LoadConfig(configFile)
+	opts, err := LoadConfig(configFile, "")
 	c.Assert(err, IsNil)
 	c.Assert(len(opts), Equals, 3)
 	c.Assert(opts[OptionEndpoint], IsNil)
@@ -300,12 +300,12 @@ func (s *OssutilConfigSuite) TestConfigInvalidOption(c *C) {
 }
 
 func (s *OssutilConfigSuite) TestConfigNotConfigFile(c *C) {
-	configCommand.runCommandInteractive("", LEnglishLanguage)
+	configCommand.runCommandInteractive("", LEnglishLanguage, "")
 	contents, _ := ioutil.ReadFile(logPath)
 	LogContent := string(contents)
 	c.Assert(strings.Contains(LogContent, "Please enter the config file name"), Equals, true)
 
-	configCommand.runCommandInteractive("", ChineseLanguage)
+	configCommand.runCommandInteractive("", ChineseLanguage, "")
 	contents, _ = ioutil.ReadFile(logPath)
 	LogContent = string(contents)
 	c.Assert(strings.Contains(LogContent, "请输入配置文件名"), Equals, true)
@@ -326,7 +326,7 @@ func (s *OssutilConfigSuite) TestConfigConfigInteractive(c *C) {
 	oldStdin := os.Stdin
 	os.Stdin = inputFile
 
-	err := configCommand.configInteractive(configFileName, LEnglishLanguage)
+	err := configCommand.configInteractive(configFileName, LEnglishLanguage, "")
 	c.Assert(err, IsNil)
 
 	fileData, err := ioutil.ReadFile(configFileName)
@@ -397,7 +397,7 @@ func (s *OssutilConfigSuite) TestConfigNonInteractiveWithCommonOption(c *C) {
 	c.Assert(err, IsNil)
 	c.Assert(f.Size() > 0, Equals, true)
 
-	opts, err := LoadConfig(cfile)
+	opts, err := LoadConfig(cfile, "")
 	testLogger.Print(opts)
 	c.Assert(err, IsNil)
 	c.Assert(len(opts), Equals, 13)
@@ -462,7 +462,7 @@ func (s *OssutilConfigSuite) TestConfigNonInteractiveWithCommonOption(c *C) {
 		"connectTimeOut=" + connectTimeOut
 	s.createFile(cfile, data, c)
 
-	opts, err = LoadConfig(cfile)
+	opts, err = LoadConfig(cfile, "")
 	testLogger.Print(opts)
 	c.Assert(err, IsNil)
 	c.Assert(len(opts), Equals, 21)

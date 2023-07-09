@@ -98,10 +98,10 @@ func DecideConfigFile(configFile string) string {
 }
 
 // LoadConfig load the specified config file
-func LoadConfig(configFile string) (OptionMapType, error) {
+func LoadConfig(configFile, profile string) (OptionMapType, error) {
 	var configMap OptionMapType
 	var err error
-	configMap, err = readConfigFromFile(configFile)
+	configMap, err = readConfigFromFile(configFile, profile)
 	if err != nil {
 		return nil, fmt.Errorf("Read config file error: %s, please try \"help config\" to set configuration or use \"--config-file\" option", err)
 	}
@@ -111,7 +111,21 @@ func LoadConfig(configFile string) (OptionMapType, error) {
 	return configMap, nil
 }
 
-func readConfigFromFile(configFile string) (OptionMapType, error) {
+// LoadConfig load the specified config file
+func LoadConfigByProfile(configFile, profile string) (OptionMapType, error) {
+	var configMap OptionMapType
+	var err error
+	configMap, err = readConfigFromFile(configFile, profile)
+	if err != nil {
+		return nil, fmt.Errorf("Read config file error: %s, please try \"help config\" to set configuration or use \"--config-file\" option", err)
+	}
+	if err = checkConfig(configMap); err != nil {
+		return nil, err
+	}
+	return configMap, nil
+}
+
+func readConfigFromFile(configFile, profile string) (OptionMapType, error) {
 	configFile = DecideConfigFile(configFile)
 
 	config, err := configparser.Read(configFile)
@@ -133,9 +147,17 @@ func readConfigFromFile(configFile string) (OptionMapType, error) {
 	}
 
 	// get options in cred section
-	credSection, err := config.Section(CREDSection)
-	if err != nil {
-		return nil, err
+	var credSection *configparser.Section
+	if profile == "" {
+		credSection, err = config.Section(CREDSection)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		credSection, err = config.Section(profile)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	credOptions := credSection.Options()
