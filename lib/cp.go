@@ -902,20 +902,30 @@ Other Options:
 
 --enable-symlink-dir option
 
-   Allows transfer of files in the link subdirectory. If there is an infinite loop link file or directory, 
-   it will cause an error. 
-   It is recommended to use the probe command to detect the existence of an infinite loop link file or 
-   directory before use
+    Allows transfer of files in the link subdirectory. If there is an infinite loop link file or directory, 
+    it will cause an error. 
+    It is recommended to use the probe command to detect the existence of an infinite loop link file or 
+    directory before use
 
 --disable-all-symlink option
 
-  specifies that uploading of symlink files and symlink directories under the directory is not allowed
+    specifies that uploading of symlink files and symlink directories under the directory is not allowed
 
 --only-current-dir
     
-   Used with the -r option, it means that only the files in the current directory will be manipulated, 
-   and the subdirectories under the current directory will be ignored.
-   If you are downloading or copying the oss directory, add a backslash(/) after the directory.
+    Used with the -r option, it means that only the files in the current directory will be manipulated, 
+    and the subdirectories under the current directory will be ignored.
+    If you are downloading or copying the oss directory, add a backslash(/) after the directory.
+
+--start-time
+    
+    Timestamp, the number of seconds that elapsed from January 1, 1970 (midnight UTC/GMT).
+    If this option is set, do not transfer files that have last modified time less than this.
+
+--end-time
+
+    Timestamp, the number of seconds that elapsed from January 1, 1970 (midnight UTC/GMT).
+    If this option is set, do not transfer files that have last modified time greater than this.
 
 Resume copy of big file:
 
